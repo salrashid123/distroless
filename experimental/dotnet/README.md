@@ -123,7 +123,7 @@ CMD ["bin/Release/netcoreapp2.1/linux-x64/publish/hello"]
 See the dotnet [Hello World](../../examples/dotnet/) directory for an example and [examples/dotnet/BUILD](../../examples/dotnet/BUILD) using bazel:
 
 ```
-docker_build(
+container_image(
     name = "hello",
     base = "//dotnet:dotnet",
     cmd = [
@@ -214,7 +214,7 @@ Hello World
 which in turn makes the build rule just
 
 ```
-docker_build(
+container_image(
     name = "hello",
     base = "//dotnet:dotnet",
     cmd = [

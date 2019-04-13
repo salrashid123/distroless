@@ -1,9 +1,12 @@
 workspace(name = "distroless")
 
-git_repository(
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
+http_archive(
     name = "io_bazel_rules_go",
-    remote = "https://github.com/bazelbuild/rules_go.git",
-    tag = "0.11.0",
+    sha256 = "7be7dc01f1e0afdba6c8eb2b43d2fa01c743be1b9273ab1eaf6c233df078d705",
+    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.16.5/rules_go-0.16.5.tar.gz"],
 )
 
 load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
@@ -25,8 +28,8 @@ dpkg_src(
     name = "debian_stretch",
     arch = "amd64",
     distro = "stretch",
-    sha256 = "9e7870c3c3b5b0a7f8322c323a3fa641193b1eee792ee7e2eedb6eeebf9969f3",
-    snapshot = "20180719T151130Z",
+    sha256 = "79a66cd92ba9096fce679e15d0b5feb9effcf618b0a6d065eb32684dbffd0311",
+    snapshot = "20190322T151132Z",
     url = "https://snapshot.debian.org/archive",
 )
 
@@ -34,16 +37,16 @@ dpkg_src(
     name = "debian_stretch_backports",
     arch = "amd64",
     distro = "stretch-backports",
-    sha256 = "29524787f58bc4e139e30e66bc476ff1ea33c0aa939d11638626dbe07c64b30d",
-    snapshot = "20180919T095426Z",
-    url = "http://snapshot.debian.org/archive",
+    sha256 = "36b3c35b2c01d22476736b0c26e6037dddeccf1d7a775b3fbd5dd991b58cceab",
+    snapshot = "20190322T155353Z",
+    url = "https://snapshot.debian.org/archive",
 )
 
 dpkg_src(
     name = "debian_stretch_security",
-    package_prefix = "https://snapshot.debian.org/archive/debian-security/20180919T095426Z/",
-    packages_gz_url = "https://snapshot.debian.org/archive/debian-security/20180919T095426Z/dists/stretch/updates/main/binary-amd64/Packages.gz",
-    sha256 = "4b7df485333ed77ccc9bb4fea9bffe302dc4d0e2303f27b39dc6a4cfcfe5fca5",
+    package_prefix = "https://snapshot.debian.org/archive/debian-security/20190322T155353Z/",
+    packages_gz_url = "https://snapshot.debian.org/archive/debian-security/20190322T155353Z/dists/stretch/updates/main/binary-amd64/Packages.gz",
+    sha256 = "5dc5641648e7773dcd14e5ac2afd1803e8639b8b793ac5975793f8e98908d8ff",
 )
 
 dpkg_list(
@@ -51,7 +54,8 @@ dpkg_list(
     packages = [
         # Version required to skip a security fix to the pre-release library
         # TODO: Remove when there is a security fix or dpkg_list finds the recent version
-        "libc6=2.24-11+deb9u3",
+        "libc6=2.24-11+deb9u4",
+        "base-files",
         "ca-certificates",
         "openssl",
         "libssl1.0.2",
@@ -77,14 +81,24 @@ dpkg_list(
 
         #java
         "zlib1g",
+        "libjpeg62-turbo",
+        "libpng16-16",
+        "liblcms2-2",
+        "libfreetype6",
+        "fonts-dejavu-core",
+        "fontconfig-config",
+        "libfontconfig1",
         "openjdk-8-jre-headless",
+        "openjdk-11-jre-headless",
 
         #python
         "libpython2.7-minimal",
         "python2.7-minimal",
         "libpython2.7-stdlib",
         "dash",
-        "libc-bin",
+        # Version required to skip a security fix to the pre-release library
+        # TODO: Remove when there is a security fix or dpkg_list finds the recent version
+        "libc-bin=2.24-11+deb9u4",
 
         #python3
         "libpython3.5-minimal",
@@ -110,23 +124,23 @@ dpkg_list(
 )
 
 # For Jetty
-new_http_archive(
+http_archive(
     name = "jetty",
-    build_file = "BUILD.jetty",
-    sha256 = "ca93c7f88e842fcb1e7bd551c071b3302b7be1faf9cad3ce415af19c77d6cb74",
-    strip_prefix = "jetty-distribution-9.4.4.v20170414/",
+    build_file = "//:BUILD.jetty",
+    sha256 = "c66abd7323f6df5b28690e145d2ae829dbd12b8a2923266fa23ab5139a9303c5",
+    strip_prefix = "jetty-distribution-9.4.14.v20181114/",
     type = "tar.gz",
-    urls = ["http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.4.v20170414/jetty-distribution-9.4.4.v20170414.tar.gz"],
+    urls = ["https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.14.v20181114/jetty-distribution-9.4.14.v20181114.tar.gz"],
 )
 
 # Node
-new_http_archive(
+http_archive(
     name = "nodejs",
-    build_file = "experimental/nodejs/BUILD.nodejs",
-    sha256 = "0e49da19cdf4c89b52656e858346775af21f1953c308efbc803b665d6069c15c",
-    strip_prefix = "node-v8.9.1-linux-x64/",
+    build_file = "//experimental/nodejs:BUILD.nodejs",
+    sha256 = "dc004e5c0f39c6534232a73100c194bc1446f25e3a6a39b29e2000bb3d139d52",
+    strip_prefix = "node-v8.15.0-linux-x64/",
     type = "tar.gz",
-    urls = ["https://nodejs.org/dist/v8.9.1/node-v8.9.1-linux-x64.tar.gz"],
+    urls = ["https://nodejs.org/dist/v8.15.0/node-v8.15.0-linux-x64.tar.gz"],
 )
 
 # dotnet
@@ -156,28 +170,39 @@ http_file(
 )
 
 # Docker rules.
+# TODO: substitute below for "git_repository()" once rules_docker makes a new release > 0.7.0.
+#http_archive(
+#    name = "io_bazel_rules_docker",
+#    sha256 = "...",
+#    strip_prefix = "rules_docker-0.x.x",
+#    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.x.x.tar.gz"],
+#)
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
 git_repository(
     name = "io_bazel_rules_docker",
-    commit = "7401cb256222615c497c0dee5a4de5724a4f4cc7",
+    commit = "5edd38041535c2c07ca982218d184a5769e329c6",
     remote = "https://github.com/bazelbuild/rules_docker.git",
+    shallow_since = "1553713324 -0400",
 )
 
 load(
-    "@io_bazel_rules_docker//docker:docker.bzl",
-    "docker_pull",
-    "docker_repositories",
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
 )
+
+container_repositories()
+
+load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
 
 # Used to generate java ca certs.
-docker_pull(
-    name = "debian8",
-    # From tag: 2017-09-11-115552
-    digest = "sha256:6d381d0bf292e31291136cff03b3209eb40ef6342fb790483fa1b9d3af84ae46",
+container_pull(
+    name = "debian9",
+    # From tag: 2019-02-27-130449
+    digest = "sha256:fd26dfa474b76ef931e439537daba90bbd90d6c5bbdd0252616e6d87251cd9cd",
     registry = "gcr.io",
-    repository = "google-appengine/debian8",
+    repository = "google-appengine/debian9",
 )
-
-docker_repositories()
 
 # Have the py_image dependencies for testing.
 load(

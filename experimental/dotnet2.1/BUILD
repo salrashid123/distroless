@@ -1,9 +1,9 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@io_bazel_rules_docker//docker:docker.bzl", "docker_build")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@package_bundle//file:packages.bzl", "packages")
 
-[docker_build(
+[container_image(
     name = "latest" if (not mode) else mode[1:],
     base = "//cc" + mode,
     debs = [
@@ -20,7 +20,7 @@ load("@package_bundle//file:packages.bzl", "packages")
     symlinks = {
         "/usr/bin/dotnet": "/opt/dotnet/dotnet",
     },
-    tars = ["@dotnet21//:tar"],
+    tars = ["@dotnet//:tar"],
 ) for mode in [
     "",
     ":debug",
